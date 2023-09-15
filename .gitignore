@@ -130,7 +130,3 @@ dmypy.json
 
 # Mac, ugh!
 .DS_Store
-
-# Directories handled by DVC
-/data_raw
-/data_processed
