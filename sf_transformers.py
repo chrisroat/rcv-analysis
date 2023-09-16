@@ -19,19 +19,19 @@ TRANSFORMERS = [
     ),
     (
         re.compile(r"^BOARD OF EDUCATION$"),
-        ("School District", "San Francisco", "Board Member", None),
+        ("School District", "San Francisco", "Governing Board", None),
     ),
     (
         re.compile(r"^COMMUNITY COLLEGE BOARD$"),
-        ("Community College District", "San Francisco", "Board Member", None),
+        ("Community College District", "San Francisco", "Governing Board", None),
     ),
     (
         re.compile(r"^BART DIRECTOR DISTRICT (\d+)$"),
-        ("BART Board of Directors", "SF Bay Area", "Board Member", 1),
+        ("Special District", "SF Bay Area", "BART Director", 1),
     ),
     (
         re.compile(r"^BOARD OF SUPERVISORS DISTRICT (\d+)$"),
-        ("City", "Board of Supervisors", "Board Member", 1),
+        ("City", "San Francisco", "Board of Supervisors", 1),
     ),
     (
         re.compile(r"^(Proposition) (\d+)$"),

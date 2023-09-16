@@ -1,6 +1,8 @@
 import time
 from pathlib import Path
 
+import pandas as pd
+
 
 def timer(func):
     # This function shows the execution time of
@@ -35,7 +37,25 @@ def extract(match, extractor):
 
 
 @timer
-def write(df_cvr, df_contest, df_office, df_candidate, df_mark, out_path):
+def read_full(path):
+    df_mark = read_path(path, "mark")
+    df_office = read_path(path, "office")
+    df_candidate = read_path(path, "candidate", ["name"])
+    df_contest = read_path(path, "contest", ["vote_for", "ranked", "office_id"])
+    df = df_mark.join(df_contest)
+    df = df.merge(df_office, left_on="office_id", right_index=True)
+    df = df.merge(df_candidate, left_on="candidate_id", right_index=True)
+    return df
+
+
+def read_path(path, kind, columns=None):
+    path = Path("data") / "processed" / path / f"{kind}.pq"
+    return pd.read_parquet(path, columns=columns)
+
+
+@timer
+def write(df_cvr, df_contest, df_office, df_candidate, df_mark, path):
+    out_path = Path("data") / "processed" / path
     out_path.mkdir(parents=True, exist_ok=True)
     df_cvr.to_parquet(out_path / "cvr.pq")
     df_contest.to_parquet(out_path / "contest.pq")

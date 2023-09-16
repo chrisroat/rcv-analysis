@@ -14,49 +14,49 @@ TRANSFORMERS = [
     (re.compile(r"^(County) (Supervisor), District (\d+)$"), (1, "Santa Clara", 2, 3)),
     (
         re.compile(r"^(Board of Education), Trustee Area #(\d+), Governing Board$"),
-        ("County", "Santa Clara", 1, 2),
+        ("County", "Santa Clara", "Board of Education", 2),
     ),
     (
-        re.compile(r"^(.*) Board of Education, District (\d+), Governing Board$"),
-        ("School District", 1, "Board Member", 2),
+        re.compile(r"^(.*) (Board of Education), District (\d+), Governing Board$"),
+        ("School District", 1, "Governing Board", 2),
     ),
     (
         re.compile(r"^(.*) (School District), Governing Board$"),
-        (2, 1, "Board Member", None),
+        (2, 1, "Governing Board", None),
     ),
     (
         re.compile(r"^(.*) (School District), Governing Board, Trustee Area (\d+)$"),
-        (2, 1, "Board Member", 3),
+        (2, 1, "Governing Board", 3),
     ),
     (
         re.compile(r"^(.*) (School District), Trustee Area #?(\d+), Governing Board$"),
-        (2, 1, "Board Member", 3),
+        (2, 1, "Governing Board", 3),
     ),
     (
         re.compile(r"^(.*) (Community College District), Governing Board$"),
-        (2, 1, "Board Member", None),
+        (2, 1, "Governing Board", None),
     ),
     (
         re.compile(
             r"^(.*) (Community College District), Trustee Area #(\d+), Governing Board$"
         ),
-        (2, 1, "Board Member", 3),
+        (2, 1, "Governing Board", 3),
     ),
     (
         re.compile(r"^(City|Town) of (.*), Council Member$"),
-        (1, 2, "Council Member", None),
+        (1, 2, "Council", None),
     ),
     (
         re.compile(r"^(City|Town) of (.*), Council Member, District (\w+)$"),
-        (1, 2, "Council Member", 3),
+        (1, 2, "Council", 3),
     ),
     (
         re.compile(r"^(City|Town) of (.*), Member, City Council, District (\d+)$"),
-        (1, 2, "Council Member", 3),
+        (1, 2, "Council", 3),
     ),
     (
         re.compile(r"^(City|Town) of (.*), District Council Member, # ?(\d+)$"),
-        (1, 2, "Council Member", 3),
+        (1, 2, "Council", 3),
     ),
     (
         re.compile(r"^(City|Town) of (.*), (Mayor|Chief of Police|City Clerk)$"),
