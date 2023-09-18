@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 
+DATA_ITEMS = ["cvr", "contest", "office", "candidate", "mark"]
+
 
 def timer(func):
     # This function shows the execution time of
@@ -15,13 +17,6 @@ def timer(func):
         return result
 
     return wrap_func
-
-
-def get_paths(path):
-    data = Path("data")
-    raw_path = data / "raw" / path
-    processed_path = data / "processed" / path
-    return raw_path, processed_path
 
 
 def transform(contest, transformers):
@@ -37,28 +32,14 @@ def extract(match, extractor):
 
 
 @timer
-def read_full(path):
-    df_mark = read_path(path, "mark")
-    df_office = read_path(path, "office")
-    df_candidate = read_path(path, "candidate", ["name"])
-    df_contest = read_path(path, "contest", ["vote_for", "ranked", "office_id"])
-    df = df_mark.join(df_contest)
-    df = df.merge(df_office, left_on="office_id", right_index=True)
-    df = df.merge(df_candidate, left_on="candidate_id", right_index=True)
-    return df
-
-
-def read_path(path, kind, columns=None):
-    path = Path("data") / "processed" / path / f"{kind}.pq"
-    return pd.read_parquet(path, columns=columns)
+def read_proc(path):
+    path_proc = Path("data") / "processed" / path
+    return {item: pd.read_parquet(path_proc / f"{item}.pq") for item in DATA_ITEMS}
 
 
 @timer
-def write(df_cvr, df_contest, df_office, df_candidate, df_mark, path):
-    out_path = Path("data") / "processed" / path
-    out_path.mkdir(parents=True, exist_ok=True)
-    df_cvr.to_parquet(out_path / "cvr.pq")
-    df_contest.to_parquet(out_path / "contest.pq")
-    df_office.to_parquet(out_path / "office.pq")
-    df_candidate.to_parquet(out_path / "candidate.pq")
-    df_mark.to_parquet(out_path / "mark.pq")
+def write_proc(data_proc, path):
+    path_proc = Path("data") / "processed" / path
+    path_proc.mkdir(parents=True, exist_ok=True)
+    for item in DATA_ITEMS:
+        data_proc[item].to_parquet(path_proc / f"{item}.pq")

@@ -6,18 +6,19 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common_lib import get_paths, timer, transform, write
+from common_lib import timer, transform, write_proc
 from scc_transformers import TRANSFORMERS
 
 
-def preprocess_path(in_path, out_path, nrows=None):
-    df = read_raw(in_path, nrows=nrows)
-    df_cvr, df_contest, df_office, df_candidate, df_mark = preprocess(df)
-    write(df_cvr, df_contest, df_office, df_candidate, df_mark, out_path)
+def preprocess_path(path, nrows=None):
+    df = read_raw(path, nrows=nrows)
+    data_proc = preprocess(df)
+    write_proc(data_proc, path)
 
 
 @timer
 def read_raw(path, nrows=None):
+    path = Path("data") / "raw" / path
     path = list(path.glob("*.gz"))[0]
     with gzip.open(path) as gz_file:
         df = pd.read_csv(gz_file, header=[1, 2, 3], na_values=[0], nrows=nrows)
@@ -43,7 +44,13 @@ def preprocess(df):
     df.set_index("rank", append=True, inplace=True)
     df.sort_index(inplace=True)
 
-    return df_cvr, df_contest, df_office, df_candidate, df
+    return {
+        "cvr": df_cvr,
+        "contest": df_contest,
+        "office": df_office,
+        "candidate": df_candidate,
+        "mark": df,
+    }
 
 
 def reformat_strings(df):
@@ -199,5 +206,4 @@ if __name__ == "__main__":
     )
     parser.add_argument("--nrows", type=int, default=None, help="# rows to process")
     args = parser.parse_args()
-    in_path, out_path = get_paths(args.path)
-    preprocess_path(in_path, out_path, args.nrows)
+    preprocess_path(args.path, args.nrows)

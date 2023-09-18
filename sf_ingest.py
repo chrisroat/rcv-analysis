@@ -7,18 +7,19 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common_lib import get_paths, timer, transform, write
+from common_lib import timer, transform, write_proc
 from sf_transformers import TRANSFORMERS
 
 
-def preprocess_path(in_path, out_path, nfiles=None):
-    data = read_raw(in_path, nfiles)
-    df_cvr, df_contest, df_candidate, df_office, df_mark = preprocess(*data)
-    write(df_cvr, df_contest, df_candidate, df_office, df_mark, out_path)
+def preprocess_path(path, nfiles=None):
+    data_raw = read_raw(path, nfiles)
+    data_proc = preprocess(data_raw)
+    write_proc(data_proc, path)
 
 
 @timer
 def read_raw(path, nfiles):
+    path = Path("data") / "raw" / path
     path = list(path.glob("*.gz"))[0]
     with gzip.open(path) as gz_file:
         with zipfile.ZipFile(gz_file, "r") as zip_file:
@@ -62,16 +63,22 @@ def read_raw(path, nfiles):
                                 ]
                                 mark_data.append(data)
                         cvr_id += 1
-    return cvr_data, contest_data, candidate_data, mark_data
+    return {
+        "cvr": cvr_data,
+        "contest": contest_data,
+        "candidate": candidate_data,
+        "mark": mark_data,
+    }
 
 
 @timer
-def preprocess(cvr_data, contest_data, candidate_data, mark_data):
-    df_cvr = pd.DataFrame(cvr_data, columns=["cvr_id", "filename"]).set_index("cvr_id")
+def preprocess(data_raw):
+    df_cvr = pd.DataFrame(data_raw["cvr"], columns=["cvr_id", "filename"])
+    df_cvr = df_cvr.set_index("cvr_id")
     df_cvr.index = df_cvr.index.astype(np.int32)
     df_cvr = df_cvr.astype("category")
 
-    df_contest = pd.json_normalize(contest_data, record_path=["List"])
+    df_contest = pd.json_normalize(data_raw["contest"], record_path=["List"])
     contest_dtypes = {
         "Id": np.int16,
         "ExternalId": np.int32,
@@ -102,7 +109,7 @@ def preprocess(cvr_data, contest_data, candidate_data, mark_data):
 
     df_contest = df_contest.drop(columns=office_levels)
 
-    df_candidate = pd.json_normalize(candidate_data, record_path=["List"])
+    df_candidate = pd.json_normalize(data_raw["candidate"], record_path=["List"])
     df_candidate["party"] = None
     cand_dtypes = {
         "Id": np.int16,
@@ -126,11 +133,17 @@ def preprocess(cvr_data, contest_data, candidate_data, mark_data):
         "is_vote": np.bool_,
         "is_ambiguous": np.bool_,
     }
-    df_mark = pd.DataFrame(mark_data, columns=mark_dtypes.keys())
+    df_mark = pd.DataFrame(data_raw["mark"], columns=mark_dtypes.keys())
     df_mark = df_mark.astype(mark_dtypes)
     df_mark = df_mark.set_index(["cvr_id", "contest_id", "rank"]).sort_index()
 
-    return df_cvr, df_contest, df_office, df_candidate, df_mark
+    return {
+        "cvr": df_cvr,
+        "contest": df_contest,
+        "office": df_office,
+        "candidate": df_candidate,
+        "mark": df_mark,
+    }
 
 
 def standardize(row):
@@ -145,5 +158,4 @@ if __name__ == "__main__":
     )
     parser.add_argument("--nfiles", type=int, help="# files to process")
     args = parser.parse_args()
-    in_path, out_path = get_paths(args.path)
-    preprocess_path(in_path, out_path, args.nfiles)
+    preprocess_path(path, args.nfiles)
