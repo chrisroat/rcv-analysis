@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common_lib import timer, transform, write_proc
+from common_lib import create_title, timer, transform, write_proc
 from sf_transformers import TRANSFORMERS
 
 
@@ -106,6 +106,7 @@ def preprocess(data_raw):
 
     df_office = df_contest[office_levels + ["office_id"]].drop_duplicates()
     df_office = df_office.set_index("office_id").astype("category")
+    df_office["office"] = df_office.apply(create_title, axis="columns")
 
     df_contest = df_contest.drop(columns=office_levels)
 

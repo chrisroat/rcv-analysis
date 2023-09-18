@@ -16,7 +16,7 @@ def go(df):
 
 def plot_corr(df):
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(6, 12))
-    title = get_title(df)
+    title = "NEW TITLE NEEDED"
     fig.suptitle(title)
     pivot_table = df.pivot_table(
         index=["contest_id", "cvr_id"],
@@ -31,19 +31,6 @@ def plot_corr(df):
     fig.tight_layout()
 
     return corr_names
-
-
-def get_title(df):
-    office_cols = ["level", "jurisdiction", "office", "district"]
-    df = df[office_cols].drop_duplicates()
-    assert df.shape[0] == 1
-    vals = df.iloc[0].to_dict()
-    title = "{level} {jurisdiction} {office}".format(**vals)
-    if np.isnan(vals["district"]):
-        title = "{level} {jurisdiction} {office}".format(**vals)
-    else:
-        title = "{level} {jurisdiction} {office} {district}".format(**vals)
-    return title
 
 
 def plot(matrix, ax, symmetric):

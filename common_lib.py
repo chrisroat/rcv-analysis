@@ -43,3 +43,10 @@ def write_proc(data_proc, path):
     path_proc.mkdir(parents=True, exist_ok=True)
     for item in DATA_ITEMS:
         data_proc[item].to_parquet(path_proc / f"{item}.pq")
+
+
+def create_title(row):
+    title = f"{row.level}:{row.jurisdiction}:{row.office}"
+    if type(row.district) is str:
+        title += f":{row.district}"
+    return title
