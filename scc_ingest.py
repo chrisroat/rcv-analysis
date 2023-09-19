@@ -40,9 +40,8 @@ def preprocess(df):
     df_contest, df_office = split_contest(df)
     df_candidate = split_candidate(df)
 
-    df.reset_index(level="candidate_id", inplace=True)
-    df.set_index("rank", append=True, inplace=True)
-    df.sort_index(inplace=True)
+    indices = ["contest_id", "cvr_id", "rank", "candidate_id"]
+    df = df.reset_index().set_index(indices).sort_index()
 
     return {
         "cvr": df_cvr,
@@ -163,11 +162,13 @@ def split_contest(df):
 
     df_office = df_contest[office_levels + ["office_id"]].drop_duplicates()
     df_office = df_office.set_index("office_id").astype("category")
-    df_office["office"] = df_office.apply(create_title, axis="columns")
+    df_office["office_name"] = df_office.apply(create_title, axis="columns")
 
     df_contest = df_contest.drop(columns=office_levels)
     df.index = df.index.set_levels(df_contest.index, level="contest")
     df.index = df.index.set_names("contest_id", level="contest")
+
+    df_contest = df_contest.set_index("office_id", append=True)
     return df_contest, df_office
 
 

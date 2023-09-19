@@ -8,10 +8,9 @@ from scipy.cluster import hierarchy
 
 
 def go(df):
-    for _, df_contest in df.groupby(["contest_id"]):
-        names_ordered = plot_corr(df_contest)
-        plot_results(df_contest)
-        plot_combos(df_contest, names_ordered)
+    names_ordered = plot_corr(df)
+    plot_results(df)
+    plot_combos(df, names_ordered)
 
 
 def plot_corr(df):

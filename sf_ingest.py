@@ -106,9 +106,10 @@ def preprocess(data_raw):
 
     df_office = df_contest[office_levels + ["office_id"]].drop_duplicates()
     df_office = df_office.set_index("office_id").astype("category")
-    df_office["office"] = df_office.apply(create_title, axis="columns")
+    df_office["office_name"] = df_office.apply(create_title, axis="columns")
 
     df_contest = df_contest.drop(columns=office_levels)
+    df_contest = df_contest.set_index("office_id", append=True)
 
     df_candidate = pd.json_normalize(data_raw["candidate"], record_path=["List"])
     df_candidate["party"] = None
@@ -136,7 +137,8 @@ def preprocess(data_raw):
     }
     df_mark = pd.DataFrame(data_raw["mark"], columns=mark_dtypes.keys())
     df_mark = df_mark.astype(mark_dtypes)
-    df_mark = df_mark.set_index(["cvr_id", "contest_id", "rank"]).sort_index()
+    indices = ["contest_id", "cvr_id", "rank", "candidate_id"]
+    df_mark = df_mark.set_index(indices).sort_index()
 
     return {
         "cvr": df_cvr,
@@ -159,4 +161,4 @@ if __name__ == "__main__":
     )
     parser.add_argument("--nfiles", type=int, help="# files to process")
     args = parser.parse_args()
-    preprocess_path(path, args.nfiles)
+    preprocess_path(args.path, args.nfiles)
