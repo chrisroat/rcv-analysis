@@ -105,25 +105,30 @@ def preprocess(data_raw):
     df_contest["office_id"] = oid
 
     df_office = df_contest[office_levels + ["office_id"]].drop_duplicates()
-    df_office = df_office.set_index("office_id").astype("category")
-    df_office["office_name"] = df_office.apply(create_title, axis="columns")
+    office_name = df_office.apply(create_title, axis="columns").astype("category")
+    df_office["office_name"] = office_name
+    df_office = df_office.set_index(["office_id", "office_name"]).astype("category")
 
     df_contest = df_contest.drop(columns=office_levels)
     df_contest = df_contest.set_index("office_id", append=True)
 
     df_candidate = pd.json_normalize(data_raw["candidate"], record_path=["List"])
-    df_candidate["party"] = None
+    df_candidate["Party"] = None
     cand_dtypes = {
         "Id": np.int16,
         "ExternalId": "category",
         "ContestId": np.int16,
         "Type": "category",
         "Disabled": np.bool_,
-        "party": "category",
+        "Party": "category",
     }
     df_candidate = df_candidate.astype(cand_dtypes)
     df_candidate = df_candidate.rename(
-        columns={"Id": "candidate_id", "Description": "name", "ContestId": "contest_id"}
+        columns={
+            "Id": "candidate_id",
+            "Description": "Candidate",
+            "ContestId": "contest_id",
+        }
     )
     df_candidate = df_candidate.set_index("candidate_id").sort_index()
 

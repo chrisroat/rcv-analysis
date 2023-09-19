@@ -117,12 +117,12 @@ def update_column_index(df):
         .reset_index(drop=True)
         .apply(lambda x: np.where(x.str.contains("Unnamed"), "", x))
     )
-    df_cols.columns = ["contest", "candidate", "party"]
-    df_cols["candidate"] = df_cols["candidate"].replace(
+    df_cols.columns = ["contest", "Candidate", "Party"]
+    df_cols["Candidate"] = df_cols["Candidate"].replace(
         r"BONDS—(YES|NO)", r"\1", regex=True
     )
-    df_cols["candidate"] = df_cols["candidate"] + ";" + df_cols["party"]
-    df_cols = df_cols.drop(columns="party")
+    df_cols["Candidate"] = df_cols["Candidate"] + ";" + df_cols["Party"]
+    df_cols = df_cols.drop(columns="Party")
     df_cols = df_cols.astype("category")
     df.columns = pd.MultiIndex.from_frame(df_cols)
 
@@ -130,7 +130,7 @@ def update_column_index(df):
 def tidy(df):
     df = df.melt(value_name="rank", ignore_index=False).dropna()
     df["rank"] = df["rank"].astype(np.int8)
-    df.set_index(["contest", "candidate"], append=True, inplace=True)
+    df.set_index(["contest", "Candidate"], append=True, inplace=True)
     df.sort_index(inplace=True)
     df.name = "mark"
     return df
@@ -161,8 +161,9 @@ def split_contest(df):
     df_contest["office_id"] = oid
 
     df_office = df_contest[office_levels + ["office_id"]].drop_duplicates()
-    df_office = df_office.set_index("office_id").astype("category")
-    df_office["office_name"] = df_office.apply(create_title, axis="columns")
+    office_name = df_office.apply(create_title, axis="columns").astype("category")
+    df_office["office_name"] = office_name
+    df_office = df_office.set_index(["office_id", "office_name"]).astype("category")
 
     df_contest = df_contest.drop(columns=office_levels)
     df.index = df.index.set_levels(df_contest.index, level="contest")
@@ -188,14 +189,16 @@ def standardize(contest):
 
 
 def split_candidate(df):
-    candidate_level = df.index.names.index("candidate")
+    candidate_level = df.index.names.index("Candidate")
     cand_data = [e.split(";") for e in df.index.levels[candidate_level]]
-    df_candidate = pd.DataFrame(cand_data, columns=["name", "party"]).replace("", None)
-    df_candidate["party"] = df_candidate["party"].astype("category")
+    df_candidate = pd.DataFrame(cand_data, columns=["Candidate", "Party"]).replace(
+        "", None
+    )
+    df_candidate["Party"] = df_candidate["Party"].astype("category")
     df_candidate.index.name = "candidate_id"
     df_candidate.index = df_candidate.index.astype(np.int16)
-    df.index = df.index.set_levels(df_candidate.index, level="candidate")
-    df.index = df.index.set_names("candidate_id", level="candidate")
+    df.index = df.index.set_levels(df_candidate.index, level="Candidate")
+    df.index = df.index.set_names("candidate_id", level="Candidate")
     return df_candidate
 
 
