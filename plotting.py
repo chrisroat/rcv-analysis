@@ -1,3 +1,5 @@
+import functools
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,10 +11,27 @@ NUM_VOTES = "# candidates selected"
 NUM_WINNERS = "# winning candidates selected"
 
 
-def plot_corr(matrix, symmetric):
-    fig = plt.figure()
-    fig.suptitle(matrix.attrs["contest"])
+def fig_with_title(_func=None, *, figsize=(6, 6), ytitle=None):
+    def decorator_fig(func):
+        """Create a figure with the contest name as title."""
 
+        @functools.wraps(func)
+        def wrap_func(*args, **kwargs):
+            fig = plt.figure(figsize=figsize)
+            title = args[0].attrs["title"]
+            fig.suptitle(title, y=ytitle)
+            value = func(*args, **kwargs)
+            assert value is None, f"{func.__name__} should not return a value"
+            fig.tight_layout()
+            return fig
+
+        return wrap_func
+
+    return decorator_fig if _func is None else decorator_fig(_func)
+
+
+@fig_with_title
+def plot_corr(matrix, symmetric):
     size = matrix.shape[0]
     mask = np.eye(size, dtype=np.bool_)
     limit = np.abs(matrix.values[~mask]).max()
@@ -44,33 +63,29 @@ def plot_corr(matrix, symmetric):
         )
 
 
+@fig_with_title
 def plot_votes(df_votes, stat="count"):
-    fig = plt.figure()
-    fig.suptitle(df_votes.attrs["contest"])
     ax = sns.histplot(df_votes, x="Candidate", weights="Votes", hue="Result", stat=stat)
     ax.tick_params(axis="x", rotation=90)
     ax.set(ylabel="# Votes", title="Vote Count")
 
 
+@fig_with_title
 def plot_ballot_num_winners(df_ballots, stat="count"):
-    fig = plt.figure()
-    fig.suptitle(df_ballots.attrs["contest"])
     ax = sns.histplot(df_ballots, x="num_winners", discrete=True, stat=stat)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.set(xlabel=NUM_WINNERS, ylabel="# Ballots")
 
 
+@fig_with_title
 def plot_ballot_num_votes(df_ballots, stat="count"):
-    fig = plt.figure()
-    fig.suptitle(df_ballots.attrs["contest"])
     ax = sns.histplot(df_ballots, x="num_votes", discrete=True, stat=stat)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.set(xlabel=NUM_VOTES, ylabel="# Ballots")
 
 
+@fig_with_title
 def plot_ballot_votes_and_winners(df_ballots, stat="count"):
-    fig = plt.figure()
-    fig.suptitle(df_ballots.attrs["contest"])
     ax = sns.histplot(
         df_ballots,
         x="num_votes",
@@ -81,15 +96,11 @@ def plot_ballot_votes_and_winners(df_ballots, stat="count"):
     )
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.set(xlabel=NUM_VOTES, ylabel="# Ballots")
-    leg = ax.get_legend()
-    # leg = ax.axes.flat[0].get_legend()
-    leg.set_title(NUM_WINNERS)
+    ax.get_legend().set_title(NUM_WINNERS)
 
 
+@fig_with_title(figsize=(8, 20), ytitle=1.02)
 def plot_combos(df_comb):
-    fig = plt.figure(figsize=(8, 20))
-    fig.suptitle(df_comb.attrs["contest"], y=1.02)
-
     yticks = []
     ytick_labels = []
     borders = [0]

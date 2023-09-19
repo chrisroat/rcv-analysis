@@ -14,7 +14,7 @@ from sf_transformers import TRANSFORMERS
 def preprocess_path(path, nfiles=None):
     data_raw = read_raw(path, nfiles)
     data_proc = preprocess(data_raw)
-    write_proc(data_proc, path)
+    write_proc(path, data_proc)
 
 
 @timer

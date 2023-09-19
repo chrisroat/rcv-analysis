@@ -13,7 +13,7 @@ from scc_transformers import TRANSFORMERS
 def preprocess_path(path, nrows=None):
     df = read_raw(path, nrows=nrows)
     data_proc = preprocess(df)
-    write_proc(data_proc, path)
+    write_proc(path, data_proc)
 
 
 @timer
