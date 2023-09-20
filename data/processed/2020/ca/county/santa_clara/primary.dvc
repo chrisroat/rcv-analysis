@@ -1,0 +1,6 @@
+outs:
+- md5: bba23aecb55026bd25d8f0c52629998d.dir
+  size: 31671856
+  nfiles: 5
+  hash: md5
+  path: primary

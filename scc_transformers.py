@@ -3,15 +3,35 @@ import re
 TRANSFORMERS = [
     (re.compile(r"^(President and Vice President)$"), ("Country", "US", 1, None)),
     (
+        re.compile(r"^(President of the United States - (AI|DEM|GRN|LIB|PF|REP))$"),
+        ("Country", "US", 1, None),
+    ),
+    (
         re.compile(r"^(\d+)(st|nd|rd|th) Congressional$"),
         ("State", "CA", "Representative", 1),
     ),
+    (
+        re.compile(r"^United States (Representative), District (\d+)$"),
+        ("State", "CA", 1, 2),
+    ),
     (re.compile(r"^(\d+)(st|nd|rd|th) Assembly$"), ("State", "CA", "Lower House", 1)),
+    (
+        re.compile(r"^Member of the State Assembly, District (\d+)$"),
+        ("State", "CA", "Lower House", 1),
+    ),
     (
         re.compile(r"^(\d+)(st|nd|rd|th) State Senate$"),
         ("State", "CA", "Upper House", 1),
     ),
+    (
+        re.compile(r"^State Senator, District (\d+)$"),
+        ("State", "CA", "Upper House", 1),
+    ),
     (re.compile(r"^(County) (Supervisor), District (\d+)$"), (1, "Santa Clara", 2, 3)),
+    (
+        re.compile(r"^Member, Board of Supervisors, District (\d+)$"),
+        ("County", "Santa Clara", "Supervisor", 1),
+    ),
     (
         re.compile(r"^(Board of Education), Trustee Area #(\d+), Governing Board$"),
         ("County", "Santa Clara", "Board of Education", 2),
@@ -21,7 +41,7 @@ TRANSFORMERS = [
         ("School District", 1, "Governing Board", 2),
     ),
     (
-        re.compile(r"^(.*) (School District), Governing Board$"),
+        re.compile(r"^(.*) (School District),? Governing Board( Member)?$"),
         (2, 1, "Governing Board", None),
     ),
     (
@@ -55,11 +75,15 @@ TRANSFORMERS = [
         (1, 2, "Council", 3),
     ),
     (
+        re.compile(r"^(City|Town) of (.*), City Council, District (\d+)$"),
+        (1, 2, "Council", 3),
+    ),
+    (
         re.compile(r"^(City|Town) of (.*), District Council Member, # ?(\d+)$"),
         (1, 2, "Council", 3),
     ),
     (
-        re.compile(r"^(City|Town) of (.*), (Mayor|Chief of Police|City Clerk)$"),
+        re.compile(r"^(City|Town) of (.*),? (Mayor|Chief of Police|City Clerk)$"),
         (1, 2, 3, None),
     ),
     (
@@ -67,11 +91,32 @@ TRANSFORMERS = [
         ("County", "Santa Clara", 1, 2),
     ),
     (
+        re.compile(r"^Judge of the Superior Court, Office No\. (\d+)$"),
+        ("County", "Santa Clara", "Judge - Superior Court Office", 1),
+    ),
+    (
+        re.compile(
+            r"^Member of County Central Committee, (\d+)(st|nd|rd|th) Supervisorial District - REP$"
+        ),
+        ("County", "Santa Clara", "Central Committee - REP", 1),
+    ),
+    (
+        re.compile(
+            r"^Member of County Central Committee, (\d+)(st|nd|rd|th) Assembly District - DEM$"
+        ),
+        ("County", "Santa Clara", "Central Committee - DEM", 1),
+    ),
+    (
+        re.compile(r"^Member, County Council - GRN$"),
+        ("County", "Santa Clara", "Central Committee - GRN", None),
+    ),
+    (
         re.compile(
             r"^State (Proposition) (\d+) - (Constitutional Amendment|Referendum|Initiative Statute) - .*$"
         ),
         ("State", "CA", 1, 2),
     ),
+    (re.compile(r"^(Proposition) (\d+)"), ("State", "CA", 1, 2)),
     (re.compile(r"^(Measure) ([A-Z]+) - (Town|City) of (.*), (.*)$"), (3, 4, 1, 2)),
     (re.compile(r"^(Measure) ([A-Z]+) - (.*) (School District), (.*)$"), (4, 3, 1, 2)),
     (
