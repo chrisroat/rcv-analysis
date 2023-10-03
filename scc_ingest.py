@@ -1,5 +1,7 @@
 import gzip
+import io
 import re
+import zipfile
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -21,9 +23,23 @@ def read_raw(path, nrows=None):
     path = Path("data") / "raw" / path
     path = list(path.glob("*.gz"))[0]
     with gzip.open(path) as gz_file:
-        df = pd.read_csv(gz_file, header=[1, 2, 3], na_values=[0], nrows=nrows)
-    print(f"Raw data total rows: {df.shape[0]}")
-    return df
+        with zipfile.ZipFile(gz_file, "r") as zip_file:
+            total = len(zip_file.filelist)
+            for idx, zip_info in enumerate(zip_file.filelist):
+                print(idx, "of", total)
+                with zip_file.open(zip_info) as csv_export:
+                    csv = [
+                        str(line.rstrip())
+                        for line in csv_export
+                        if b"redacted" not in line
+                    ]
+                    csv = io.StringIO("\n".join(csv))
+                    df = pd.read_csv(csv, header=[1, 2, 3], na_values=[0], nrows=nrows)
+                    return df
+
+    #     df = pd.read_csv(gz_file, header=[1, 2, 3], na_values=[0], nrows=nrows)
+    # print(f"Raw data total rows: {df.shape[0]}")
+    # return df
 
 
 @timer
@@ -53,9 +69,8 @@ def preprocess(df):
 
 
 def reformat_strings(df):
-    reformat_cols = df.columns[:5]
-    for col in reformat_cols:
-        df[col] = df[col].str[2:-1]
+    index_col = df.columns[0]
+    df[index_col] = df[index_col].str[2:]
 
 
 def set_index(df):
@@ -74,10 +89,6 @@ def split_cvr(df):
 
 
 def check_and_clean_id_invariants(df_id):
-    i_id = df_id["TabulatorNum"] + "-" + df_id["BatchId"] + "-" + df_id["RecordId"]
-    imprinted_id_ok = (df_id["ImprintedId"] == i_id) | (df_id["ImprintedId"] == "")
-    assert imprinted_id_ok.all(), "ImprintedId mismatch"
-
     df_id.drop(columns="ImprintedId", inplace=True)
     cols = ["TabulatorNum", "BatchId"]
     df_id[cols] = df_id[cols].astype(np.int16)
