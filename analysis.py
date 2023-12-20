@@ -46,6 +46,14 @@ if __name__ == "__main__":
             "city/los_altos/council",
         ),
         (
+            "2022/ca/county/santa_clara/general",
+            "2022 Los Altos City Council",
+            {
+                "contest_query": "(jurisdiction == 'Los Altos') & (office == 'Council')",
+            },
+            "city/los_altos/council",
+        ),
+        (
             "2020/ca/city/san_francisco/general",
             "2020 SF School Board",
             {
