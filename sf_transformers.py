@@ -27,7 +27,7 @@ TRANSFORMERS = [
     ),
     (
         re.compile(r"^BART DIRECTOR DISTRICT (\d+)$"),
-        ("Special District", "SF Bay Area", "BART Director", 1),
+        ("Special", "SF Bay Area", "BART Director", 1),
     ),
     (
         re.compile(r"^BOARD OF SUPERVISORS DISTRICT (\d+)$"),
