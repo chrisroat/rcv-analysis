@@ -23,23 +23,44 @@ def read_raw(path, nrows=None):
     path = Path("data") / "raw" / path
     path = list(path.glob("*.gz"))[0]
     with gzip.open(path) as gz_file:
-        with zipfile.ZipFile(gz_file, "r") as zip_file:
-            total = len(zip_file.filelist)
-            for idx, zip_info in enumerate(zip_file.filelist):
-                print(idx, "of", total)
-                with zip_file.open(zip_info) as csv_export:
-                    csv = [
-                        str(line.rstrip())
-                        for line in csv_export
-                        if b"redacted" not in line
-                    ]
-                    csv = io.StringIO("\n".join(csv))
-                    df = pd.read_csv(csv, header=[1, 2, 3], na_values=[0], nrows=nrows)
-                    return df
+        if zipfile.is_zipfile(gz_file):
+            df = read_zipfile(gz_file, nrows)
+        else:
+            gz_file.seek(0)  # is_zipfile modifies buffer pointer, so we need to reset.
+            df = pd.read_csv(gz_file, header=[1, 2, 3], na_values=[0], nrows=nrows)
+    print(f"Raw data total rows: {df.shape[0]}")
+    return df
 
-    #     df = pd.read_csv(gz_file, header=[1, 2, 3], na_values=[0], nrows=nrows)
-    # print(f"Raw data total rows: {df.shape[0]}")
-    # return df
+
+def read_zipfile(gz_file, nrows):
+    with zipfile.ZipFile(gz_file, "r") as zip_file:
+        total_files = len(zip_file.filelist)
+        df_list = []
+        for idx, zip_info in enumerate(zip_file.filelist):
+            print(idx, "of", total_files, ":", zip_info.filename)
+            with zip_file.open(zip_info) as csv_export:
+                csv = [
+                    str(line.decode("utf-8").rstrip())
+                    for line in csv_export
+                    if not line.startswith(b"1,2,3,4,5,6,7,8,9,10,11,12,13,14,15")
+                    and b"redacted" not in line
+                ]
+                csv = io.StringIO("\n".join(csv))
+                df = pd.read_csv(
+                    csv,
+                    header=[1, 2, 3],
+                    na_values=[0],
+                    nrows=nrows,
+                    dtype={4: str},  # ImprintedId is sometimes missing
+                )
+                df_list.append(df)
+                print(f"Single-file data rows read: {df.shape[0]}")
+                if nrows is not None:
+                    nrows -= df.shape[0]
+                    if nrows <= 0:
+                        break
+    df = pd.concat(df_list)
+    return df
 
 
 @timer
@@ -69,8 +90,7 @@ def preprocess(df):
 
 
 def reformat_strings(df):
-    index_col = df.columns[0]
-    df[index_col] = df[index_col].str[2:]
+    df.iloc[:, :5] = df.iloc[:, :5].replace('="(.*)"', r"\1", regex=True)
 
 
 def set_index(df):
@@ -91,7 +111,7 @@ def split_cvr(df):
 def check_and_clean_id_invariants(df_id):
     df_id.drop(columns="ImprintedId", inplace=True)
     cols = ["TabulatorNum", "BatchId"]
-    df_id[cols] = df_id[cols].astype(np.int16)
+    df_id[cols] = df_id[cols].fillna("0").astype(np.int16)
 
     df_check = df_id["BallotType"].str.extract(r"(?P<a>.+) \((?P<b>.+)\)")
     ballot_type_ok = df_check["a"] == df_check["b"]
