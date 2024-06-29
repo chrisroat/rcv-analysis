@@ -4,14 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-jupyterlab = "*"
-matplotlib = "*"
-numpy = "*"
-pandas = "*"
-pyarrow = "*"
-scipy = "*"
-seaborn = "*"
-tables = "*"
+jupyterlab = "==4.2"
+matplotlib = "==3.9"
+numpy = "==1.26"
+pandas = "==2.2"
+pyarrow = "==16.1"
+scipy = "==1.14"
+seaborn = "==0.13"
+tables = "==3.9"
 
 [requires]
 python_version = "3.11"

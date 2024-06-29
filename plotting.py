@@ -35,7 +35,7 @@ def plot_corr(matrix, symmetric):
     size = matrix.shape[0]
     mask = np.eye(size, dtype=np.bool_)
     limit = np.abs(matrix.values[~mask]).max()
-    cmap = matplotlib.cm.get_cmap("vlag")
+    cmap = matplotlib.colormaps["vlag"]
 
     if symmetric:
         vmin = -limit
