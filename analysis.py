@@ -5,11 +5,13 @@ from common_lib import read_proc_contest, write_figs
 from plotting import *
 
 
-def make_all_figs(df, stat="count"):
+def make_all_figs(df, stat="count", corr_hide_upper_half=False):
     figs = {}
 
     matrix_sym = corr_matrix(df, symmetric=True)
-    figs["corr"] = plot_corr(matrix_sym, symmetric=True)
+    figs["corr"] = plot_corr(
+        matrix_sym, symmetric=True, hide_upper_half=corr_hide_upper_half
+    )
 
     matrix_asym = corr_matrix(df, symmetric=False)
     figs["frac"] = plot_corr(matrix_asym, symmetric=False)

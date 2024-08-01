@@ -31,7 +31,9 @@ def fig_with_title(_func=None, *, figsize=(6, 6), ytitle=None):
 
 
 @fig_with_title
-def plot_corr(matrix, symmetric):
+def plot_corr(matrix, symmetric, hide_upper_half=False):
+    if not symmetric and hide_upper_half:
+        raise ValueError("Cannot hide upper half of non-symmetric correlation matrix.")
     size = matrix.shape[0]
     mask = np.eye(size, dtype=np.bool_)
     limit = np.abs(matrix.values[~mask]).max()
@@ -39,6 +41,9 @@ def plot_corr(matrix, symmetric):
 
     if symmetric:
         vmin = -limit
+        if hide_upper_half:
+            idx = np.triu_indices_from(matrix)
+            matrix.values[idx] = 0
     else:
         vmin = 0
         mid = len(cmap.colors) // 2
