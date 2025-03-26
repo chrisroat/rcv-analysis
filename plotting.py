@@ -7,6 +7,8 @@ import seaborn as sns
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import MaxNLocator
 
+plt.rcParams.update({"figure.max_open_warning": 0})
+
 NUM_VOTES = "# candidates selected"
 NUM_WINNERS = "# winning candidates selected"
 

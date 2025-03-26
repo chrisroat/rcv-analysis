@@ -41,6 +41,22 @@ if __name__ == "__main__":
     data = [
         (
             "2020/ca/county/santa_clara/general",
+            "2020 Mountain View City Council",
+            {
+                "contest_query": "(jurisdiction == 'Mountain View') & (office == 'Council')",
+            },
+            "city/mountain_view/council",
+        ),
+        (
+            "2022/ca/county/santa_clara/general",
+            "2022 Mountain View City Council",
+            {
+                "contest_query": "(jurisdiction == 'Mountain View') & (office == 'Council')",
+            },
+            "city/mountain_view/council",
+        ),
+        (
+            "2020/ca/county/santa_clara/general",
             "2020 Los Altos City Council",
             {
                 "contest_query": "(jurisdiction == 'Los Altos') & (office == 'Council')",
