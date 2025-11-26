@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-jupyterlab = "==4.4"
+jupyterlab = "==4.4.8"
 matplotlib = "==3.10"
 numpy = "==1.26"
 pandas = "==2.2"
