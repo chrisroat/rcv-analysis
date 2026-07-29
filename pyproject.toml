@@ -5,7 +5,6 @@ description = "Processes and analyzes election data to derive insights about ran
 requires-python = ">=3.14.0"
 readme = "README.md"
 dependencies = [
-    "jupyterlab",
     "matplotlib",
     "numpy",
     "pandas",
@@ -16,7 +15,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["flake8"]
+dev = ["dvc", "dvc-gdrive", "ruff"]
 
 [tool.uv]
 package = false
