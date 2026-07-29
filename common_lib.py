@@ -17,7 +17,7 @@ def timer(func):
         t1 = time.time()
         result = func(*args, **kwargs)
         t2 = time.time()
-        print(f"{func.__name__}: {(t2-t1):.1f}s")
+        print(f"{func.__name__}: {(t2 - t1):.1f}s")
         return result
 
     return wrap_func
@@ -45,9 +45,9 @@ def read_proc_contest(path, title, contest_query=None, mark_query=None):
     if contest_query:
         df = df.query(contest_query)
 
-    assert (
-        len(df.index.get_level_values("contest_id").unique()) == 1
-    ), f"query specified multiple contest: {contest_query}"
+    assert len(df.index.get_level_values("contest_id").unique()) == 1, (
+        f"query specified multiple contest: {contest_query}"
+    )
 
     df_mark = data_proc["mark"]
     if mark_query:

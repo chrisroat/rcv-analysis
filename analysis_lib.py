@@ -2,6 +2,7 @@ import numpy as np
 from scipy.cluster import hierarchy
 from scipy.spatial import distance
 
+
 def corr_matrix(df, symmetric):
     pivot_table = df.pivot_table(
         index="cvr_id", columns="Candidate", aggfunc="size", fill_value=0
