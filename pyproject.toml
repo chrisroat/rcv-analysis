@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["dvc", "dvc-gdrive", "ruff"]
+dev = ["ruff"]
 
 [tool.uv]
 package = false

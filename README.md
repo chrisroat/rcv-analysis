@@ -25,7 +25,7 @@ git submodule init
 git submodule update
 
 # Raw data is stored in Google Drive and is tracked with dvc.
-uv run dvc pull  # This can take some time.  Often you may want to just pull a subset of data.
+dvc pull  # This can take some time.  Often you may want to just pull a subset of data.
 ```
 
 To ingest the raw data sources and output the processed data sources:
