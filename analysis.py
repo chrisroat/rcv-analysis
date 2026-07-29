@@ -35,8 +35,6 @@ def make_all_figs(df, stat="count", corr_hide_upper_half=False):
 
 
 if __name__ == "__main__":
-    warnings.simplefilter(action="ignore", category=FutureWarning)
-
     sf_mark_query = "is_vote & ~is_ambiguous"
     data = [
         (

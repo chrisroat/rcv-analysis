@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.cluster import hierarchy
-
+from scipy.spatial import distance
 
 def corr_matrix(df, symmetric):
     pivot_table = df.pivot_table(
@@ -12,7 +12,7 @@ def corr_matrix(df, symmetric):
     else:
         corr = pivot_table.T.dot(pivot_table) / pivot_table.sum()
 
-    pdist = hierarchy.distance.pdist(corr.values)
+    pdist = distance.pdist(corr.values)
     linkage = hierarchy.linkage(pdist, method="complete")
     idx = hierarchy.fcluster(linkage, 0.5 * pdist.max(), "distance")
     idx = np.argsort(idx)
