@@ -4,3 +4,6 @@
 ['remote "gdrive"']
     url = gdrive://1sGvjK5L17iX5rndR0lslN2sU3sylnXN6
     gdrive_acknowledge_abuse = true
+# Add client id and secret to config.local file in this directory.
+#    gdrive_client_id = XXX.apps.googleusercontent.com
+#    gdrive_client_secret = YYY
